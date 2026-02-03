@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Lingo v1.0 — The Universal Content Bridge
+
+Lingo is an AI-powered content repurposing tool designed to synchronize your voice across TikTok, X (Twitter), and LinkedIn. It features advanced tone-mapping and support for regional dialects like Lagos Pidgin.
+
+## Tech Stack
+
+- **Frontend**: Next.js (App Router), Tailwind CSS, Framer Motion, Lucide React.
+- **Backend**: Express (TypeScript), BullMQ, Redis.
+- **Auth**: Clerk.
+- **Storage**: Redis (Job Queue), SQLite (Result Persistence).
+- **AI**: OpenAI GPT-4o.
+
+## Project Structure
+
+- `/` - Next.js Frontend
+- `/backend` - Express API & Workers
+- `/backend/src/db.ts` - SQLite setup
+- `/backend/lingo.db` - Persistent data (SQLite)
 
 ## Getting Started
 
-First, run the development server:
+### 1. Prerequisites
+- Node.js & npm
+- Redis (Local or Upstash)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### 2. Environment Variables
+
+#### Frontend (`/`)
+Create a `.env.local` file:
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_pub_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### Backend (`/backend`)
+Create a `.env` file:
+```env
+OPENAI_API_KEY=your_openai_key
+REDIS_URL=redis://localhost:6379
+PORT=4000
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Installation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Install frontend dependencies
+npm install
 
-## Learn More
+# Install backend dependencies
+cd backend
+npm install
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 4. Running the App
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+You can run both service concurrently from the root:
+```bash
+npm run dev:all
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Or separately:
 
-## Deploy on Vercel
+```bash
+# Frontend
+npm run dev
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Backend
+npm run dev:backend
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Features for v1.0
+
+- [x] **End-to-End Content Sync**: Input content, select platforms/dialects, and see reformatted drafts.
+- [x] **Clerk Auth**: Secure user accounts and protected `/app` route.
+- [x] **Tone Mapping**: Automatically adjust content for TikTok (slang), LinkedIn (professional), and X (witty).
+- [x] **Lagos Pidgin Support**: Real, authenticPidgin English reformatting.
+- [x] **Result Persistence**: SQLite backend to store generated drafts forever.
+- [x] **Clean SaaS UI**: Premium sidebar-based dashboard.
+
+## Roadmap
+
+- [ ] Platform OAuth integrations (Direct posting)
+- [ ] Video Auto-Captions
+- [ ] Engagement Analytics
+- [ ] Multi-agent Orchestration

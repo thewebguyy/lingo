@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import {
   ArrowRight,
   RefreshCw,
@@ -53,10 +55,24 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="hidden text-sm font-semibold sm:block">Log in</button>
-            <button className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all active:scale-95">
-              Launch App
-            </button>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="hidden text-sm font-semibold sm:block cursor-pointer">Log in</button>
+              </SignInButton>
+              <SignInButton mode="modal">
+                <button className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all active:scale-95 cursor-pointer">
+                  Get Started
+                </button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <Link href="/app">
+                <button className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all active:scale-95 cursor-pointer">
+                  Launch App
+                </button>
+              </Link>
+              <UserButton />
+            </SignedIn>
           </div>
         </div>
       </nav>
@@ -100,10 +116,12 @@ export default function Home() {
               transition={{ duration: 0.7, delay: 0.6 }}
               className="flex flex-col items-center justify-center gap-4 sm:flex-row"
             >
-              <button className="group flex h-14 items-center gap-2 rounded-full bg-primary px-8 text-lg font-bold text-white shadow-xl shadow-primary/20 transition-all hover:translate-y-[-2px] hover:shadow-2xl hover:shadow-primary/30 active:scale-95">
-                Start Syncing Free
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </button>
+              <Link href="/app">
+                <button className="group flex h-14 items-center gap-2 rounded-full bg-primary px-8 text-lg font-bold text-white shadow-xl shadow-primary/20 transition-all hover:translate-y-[-2px] hover:shadow-2xl hover:shadow-primary/30 active:scale-95 cursor-pointer">
+                  Start Syncing Free
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </button>
+              </Link>
               <button className="flex h-14 items-center gap-2 rounded-full border-2 border-border bg-white/50 px-8 text-lg font-bold backdrop-blur-sm transition-all hover:bg-white hover:shadow-md active:scale-95">
                 Watch Demo
               </button>
