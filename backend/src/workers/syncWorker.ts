@@ -1,7 +1,7 @@
 import { Worker, Job } from 'bullmq';
 import IORedis from 'ioredis';
 import { reformatContent } from '../services/aiService';
-import { getDb } from '../db';
+import { db } from '../db';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -11,7 +11,7 @@ const connection = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379'
 });
 
 export const syncWorker = new Worker('sync-content', async (job: Job) => {
-    const { content, platforms, targetDialect } = job.data;
+    const { content, platforms, targetDialect, userId } = job.data;
     const results: Record<string, string> = {};
 
     console.log(`Processing job ${job.id} for content: ${content.substring(0, 50)}...`);
@@ -28,19 +28,24 @@ export const syncWorker = new Worker('sync-content', async (job: Job) => {
 
             // Update job progress
             await job.updateProgress({ [platform]: 'completed' });
-        } catch (error) {
+        } catch (error: any) {
             console.error(`Error processing ${platform}:`, error);
-            results[platform] = `Error: ${error instanceof Error ? error.message : String(error)}`;
+            results[platform] = `Error: ${error.message || String(error)}`;
+            await job.updateProgress({ [platform]: 'failed', error: error.message });
         }
     }
 
     // Final persistence
     try {
-        const db = await getDb();
-        await db.run(
-            `INSERT OR REPLACE INTO jobs (id, user_id, content, platforms, dialect, results, status) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [job.id, job.data.userId, content, JSON.stringify(platforms), targetDialect, JSON.stringify(results), 'completed']
-        );
+        await db.saveJob({
+            id: job.id!,
+            userId,
+            content,
+            platforms,
+            dialect: targetDialect,
+            results,
+            status: 'completed'
+        });
     } catch (dbError) {
         console.error('Failed to store job in DB:', dbError);
     }

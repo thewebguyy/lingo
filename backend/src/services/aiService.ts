@@ -8,6 +8,8 @@ const openai = new OpenAI({
 });
 
 export async function reformatContent(content: string, platform: string, targetDialect: string = 'Standard English') {
+    if (!content.trim()) throw new Error("Source content is empty");
+
     const prompt = `
     You are Lingo, the universal content bridge. 
     Transform the following content for ${platform}.
@@ -25,11 +27,25 @@ export async function reformatContent(content: string, platform: string, targetD
     Return ONLY the reformatted content.
   `;
 
-    const response = await openai.chat.completions.create({
-        model: 'gpt-4o',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7,
-    });
+    try {
+        const response = await openai.chat.completions.create({
+            model: 'gpt-4o',
+            messages: [{ role: 'user', content: prompt }],
+            temperature: 0.7,
+        }, {
+            timeout: 30000, // 30 second timeout
+            maxRetries: 2,  // Built-in OpenAI retry
+        });
 
-    return response.choices[0].message.content;
+        const result = response.choices[0].message.content;
+        if (!result) throw new Error("AI returned empty result");
+
+        return result;
+    } catch (error: any) {
+        console.error(`AI Reformat Error [${platform}]:`, error.message);
+        if (error.name === 'AbortError' || error.message.includes('timeout')) {
+            throw new Error(`AI Request timed out for ${platform}`);
+        }
+        throw new Error(`AI Failed to reformat for ${platform}: ${error.message}`);
+    }
 }
